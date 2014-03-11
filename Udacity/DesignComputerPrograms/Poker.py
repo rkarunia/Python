@@ -56,11 +56,32 @@ def kind(n, ranks):
         if v == n:
             return k
     return None    
-  
+
+# Input: a list of card ranks, example: [10,9,8,7,6]
+# Output: returns a tuple of the two ranks (high,low), None otherwise
+def two_pair(ranks):
+    """If there are two pair, return the two ranks as a
+    tuple: (highest, lowest); otherwise return None."""
+    count = {}
+    tp_rank = []
+    for r in ranks:
+        if r in count:
+            count[r] += 1
+        else:
+            count[r] = 1
+    for k,v in count.items():
+        if v == 2:
+            tp_rank.append(k)
+    if len(tp_rank) == 2:
+        tp_rank.sort(reverse=True)
+        return tuple(tp_rank)
+    return None
+
 def test():
     sf = "6C 7C 8C 9C TC".split() # Straight Flush
     fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
     fh = "TD TC TH 7C 7D".split() # Full House
+    tp = "9D 9H 8S 8D KH".split() # Two Pair
     pair = ['AC', '3D', '4S', 'KH', 'KS']
     
     assert card_ranks(sf) == [10,9,8,7,6]
@@ -72,6 +93,9 @@ def test():
     assert straight([9, 8, 8, 6, 5]) == False
     assert flush(sf) == True
     assert flush(fk) == False
+
+    assert two_pair(card_ranks(tp)) == (9,8)
+    assert two_pair(card_ranks(pair)) == None
 
     fkranks = card_ranks(fk)
      
