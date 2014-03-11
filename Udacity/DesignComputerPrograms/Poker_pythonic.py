@@ -6,9 +6,7 @@ def card_ranks(cards):
     "Return a list of the ranks, sorted with higher first."
     ranks = ['--23456789TJQKA'.index(r) for r,s in cards]
     ranks.sort(reverse=True)    
-    if ranks == [14,5,4,3,2]:
-        ranks = [5,4,3,2,1]
-    return ranks
+    return [5,4,3,2,1] if (ranks == [14,5,4,3,2]) else ranks
 
 # Input: a list of card ranks, example: [10,9,8,7,6]
 # Output: True if ranks form a straight hand, false otherwise
