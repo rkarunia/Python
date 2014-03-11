@@ -4,10 +4,7 @@
 # example: ['AC', '3D', '4S', 'KH'] should output [14, 13, 4, 3]
 def card_ranks(cards):
     "Return a list of the ranks, sorted with higher first."
-    rankdict = {'1':1,'2':2,'3':3,'4':4,'5':5,
-                '6':6,'7':7,'8':8,'9':9,
-                'T':10,'J':11,'Q':12,'K':13,'A':14}
-    ranks = [rankdict[r] for r,s in cards]   
+    ranks = ['--23456789TJQKA'.index(r) for r,s in cards]
     ranks.sort(reverse=True)
     return ranks
 
@@ -15,24 +12,14 @@ def card_ranks(cards):
 # Output: True if ranks form a straight hand, false otherwise
 def straight(ranks):
     "Return True if the ordered ranks form a 5-card straight."
-    prev = ranks[0]+1
-    for rank in ranks:
-        if (prev - rank) is not 1:
-            return False
-        prev = rank
-    return True
-    
+    return ((max(ranks)-min(ranks)==4) and len(set(ranks))==5)
+
 # Input: a list of cards in a hand, example: ['6C','9C','8C','7C','6C']
 # Output: True if the hand form a flush hand, false otherwise
 def flush(hand):
     "Return True if all the cards have the same suit."
-    prev = hand[0][1]
-    for r,h in hand:
-        if h != prev:
-            return False
-        prev = h
-    return True
-    
+    return len(set([s for r,s in hand]))==1   
+
 # Input:
 # n -> the hand has exactly n of
 # ranks -> a list of card ranks
@@ -44,19 +31,11 @@ def flush(hand):
 def kind(n, ranks):
     """Return the first rank that this hand has exactly n of.
     Return None if there is no n-of-a-kind in the hand."""
-    if not ranks:
-        return None
-    count = {}
     for rank in ranks:
-        if rank in count:
-            count[rank] = count[rank] + 1
-        else:
-            count[rank] = 1
-    for k,v in count.items():
-        if v == n:
-            return k
-    return None    
-  
+        if ranks.count(rank) == n:
+            return rank
+    return None
+
 def test():
     sf = "6C 7C 8C 9C TC".split() # Straight Flush
     fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
