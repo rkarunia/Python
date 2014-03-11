@@ -8,7 +8,9 @@ def card_ranks(cards):
                 '6':6,'7':7,'8':8,'9':9,
                 'T':10,'J':11,'Q':12,'K':13,'A':14}
     ranks = [rankdict[r] for r,s in cards]   
-    ranks.sort(reverse=True)
+    ranks.sort(reverse=True)   
+    if ranks == [14,5,4,3,2]:
+        ranks = [5,4,3,2,1]
     return ranks
 
 # Input: a list of card ranks, example: [10,9,8,7,6]
@@ -83,7 +85,10 @@ def test():
     fh = "TD TC TH 7C 7D".split() # Full House
     tp = "9D 9H 8S 8D KH".split() # Two Pair
     pair = ['AC', '3D', '4S', 'KH', 'KS']
+    al = "AC 2D 4H 3D 5S".split() # Ace-Low Straight
     
+    assert straight(card_ranks(al)) == True 
+ 
     assert card_ranks(sf) == [10,9,8,7,6]
     assert card_ranks(fk) == [9,9,9,9,7]
     assert card_ranks(fh) == [10,10,10,7,7]
