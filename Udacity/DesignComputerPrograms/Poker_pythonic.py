@@ -1,3 +1,57 @@
+# Write a function, deal(numhands, n=5, deck), that 
+# deals numhands hands with n cards each.
+#
+import random # this will be a useful library for shuffling
+
+# This builds a deck of 52 cards. 
+mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC'] 
+
+def deal(numhands, n=5, deck=mydeck):
+    random.shuffle(deck)
+    hands = [deck[n*i:n*(1+i)] for i in range(numhands)]
+    return hands
+    
+# allmax(iterable, key=None) returns
+# a list of all items equal to the max of the iterable, 
+# according to the function specified by key. 
+def poker(hands):
+    "Return a list of winning hands: poker([hand,...]) => [hand,...]"
+    return allmax(hands, key=hand_rank)
+
+def allmax(iterable, key=None):
+    "Return a list of all items equal to the max of the iterable."
+    result, maxval = [], None
+    key = key or (lambda x: x)
+    for x in iterable:
+        xval = key(x)
+        if not result or xval > maxval:
+            result, maxval = [x], xval
+        elif xval == maxval:
+            result.append(x)
+    return result
+
+def hand_rank(hand):
+    "Return a value indicating the ranking of a hand."
+    ranks = card_ranks(hand) 
+    if straight(ranks) and flush(hand):
+        return (8, max(ranks))
+    elif kind(4, ranks):
+        return (7, kind(4, ranks), kind(1, ranks))
+    elif kind(3, ranks) and kind(2, ranks):
+        return (6, kind(3, ranks), kind(2, ranks))
+    elif flush(hand):
+        return (5, ranks)
+    elif straight(ranks):
+        return (4, max(ranks))
+    elif kind(3, ranks):
+        return (3, kind(3, ranks), ranks)
+    elif two_pair(ranks):
+        return (2, two_pair(ranks), ranks)
+    elif kind(2, ranks):
+        return (1, kind(2, ranks), ranks)
+    else:
+        return (0, ranks)
+
 # Input is a hand of cards, that is a list
 # of pair rank and suit string, example: ['AC', '3D', '4S', 'KH']
 # Output is the numeric rank of cards sorted descending
@@ -48,13 +102,20 @@ def two_pair(ranks):
     return None
 
 def test():
+ 
+    al = "AC 2D 4H 3D 5S".split() # Ace-Low Straight
+    sf1 = "6C 7C 8C 9C TC".split() # Straight Flush
+    sf2 = "6D 7D 8D 9D TD".split() # Straight Flush
+    fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
     sf = "6C 7C 8C 9C TC".split() # Straight Flush
     fk = "9D 9H 9S 9C 7D".split() # Four of a Kind
-    fh = "TD TC TH 7C 7D".split() # Full House    
+    fh = "TD TC TH 7C 7D".split() # Full House
     tp = "9D 9H 8S 8D KH".split() # Two Pair
     pair = ['AC', '3D', '4S', 'KH', 'KS']
     al = "AC 2D 4H 3D 5S".split() # Ace-Low Straight
-    
+     
+    assert poker([sf1, sf2, fk, fh]) == [sf1, sf2] 
+
     assert straight(card_ranks(al)) == True 
     
     assert card_ranks(sf) == [10,9,8,7,6]
@@ -77,6 +138,8 @@ def test():
     assert kind(2, fkranks) == None
     assert kind(1, fkranks) == 7
     
+    print deal(3)
+
     print 'Test Passed'
     return True
 
