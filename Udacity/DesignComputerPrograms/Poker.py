@@ -50,7 +50,7 @@ def allmax(iterable, key=None):
             result.append(x)
     return result
 
-def hand_rank(hand):
+hand_rank_old = """def hand_rank(hand):
     "Return a value indicating the ranking of a hand."
     ranks = card_ranks(hand) 
     if straight(ranks) and flush(hand):
@@ -70,7 +70,41 @@ def hand_rank(hand):
     elif kind(2, ranks):
         return (1, kind(2, ranks), ranks)
     else:
-        return (0, ranks)
+        return (0, ranks)"""
+
+def hand_rank(hand):
+    "Return a value indicating the ranking of a hand in a tuple."
+    # counts is the count of each rank; rank lists corresponding ranks
+    # e.g. '7 T 7 9 7' => counts = (3,1,1); ranks = (7,10,9)
+    groups = group(card_ranks(hand))
+    counts, ranks = unzip(groups)
+    return (9 if (5,) == counts else # 5 of a kind -> 4 of a kind plus joker
+            8 if straight(ranks) and flush(hand) else
+            7 if (4,1) == counts else
+            6 if (3,2) == counts else
+            5 if flush(hand) else
+            4 if straight(ranks) else
+            3 if (3,1,1) == counts else
+            2 if (2,2,1) == counts else
+            1 if (2,1,1,1) == counts else
+            0), ranks
+
+def group(items):
+    # items is the card ranks -> [6, 7, 8, 9, 10]
+    # Returns a list of [(count,x)...] highest count first, then highest x first."
+    # Example:
+    # If the input is [6,7,8,9,10], the output is [(1, 10), (1, 9), (1, 8), (1, 7), (1, 6)]
+    # If the input is [10, 10, 10, 7, 7], the output is [(3, 10), (2, 7)]
+    groups = [(items.count(x),x) for x in set(items)]
+    return sorted(groups, reverse=True)
+
+def unzip(pairs):
+    # Example:
+    # input:  [(1, 10), (1, 9), (1, 8), (1, 7), (1, 6)]
+    # output:  [(1, 1, 1, 1, 1), (10, 9, 8, 7, 6)]
+    # input: [(3, 10), (2, 7)]
+    # output: [(3, 2), (10, 7)]
+    return zip(*pairs)
 
 # Input is a hand of cards, that is a list
 # of pair rank and suit string, example: ['AC', '3D', '4S', 'KH']
@@ -190,7 +224,7 @@ def test():
     assert kind(1, fkranks) == 7
     
     print deal(3)
-    hand_percentages(10000)
+    #hand_percentages(50)
 
     print 'Test Passed'
     return True

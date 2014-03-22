@@ -31,6 +31,8 @@ def deal(numhands, n=5, deck=mydeck):
 # a list of all items equal to the max of the iterable, 
 # according to the function specified by key. 
 def poker(hands):
+    # Example of hands: [['6C', '7C', '8C', '9C', 'TC'], ['6D', '7D', '8D', '9D', 'TD'], 
+    # ['9D', '9H', '9S', '9C', '7D'], ['TD', 'TC', 'TH', '7C', '7D']]
     "Return a list of winning hands: poker([hand,...]) => [hand,...]"
     return allmax(hands, key=hand_rank)
 
@@ -46,8 +48,10 @@ def allmax(iterable, key=None):
             result.append(x)
     return result
 
+# There is a newer implementation of hand_rank
+hand_rank_old = """ hand_rank old
 def hand_rank(hand):
-    "Return a value indicating the ranking of a hand."
+    "Return a value indicating the ranking of a hand in a tuple."
     ranks = card_ranks(hand) 
     if straight(ranks) and flush(hand):
         return (8, max(ranks))
@@ -67,6 +71,41 @@ def hand_rank(hand):
         return (1, kind(2, ranks), ranks)
     else:
         return (0, ranks)
+"""
+
+def hand_rank(hand):
+    "Return a value indicating the ranking of a hand in a tuple."
+    # counts is the count of each rank; rank lists corresponding ranks
+    # e.g. '7 T 7 9 7' => counts = (3,1,1); ranks = (7,10,9)
+    groups = group(card_ranks(hand))
+    counts, ranks = unzip(groups)
+    return (9 if (5,) == counts else # 5 of a kind -> 4 of a kind plus joker
+            8 if straight(ranks) and flush(hand) else
+            7 if (4,1) == counts else
+            6 if (3,2) == counts else
+            5 if flush(hand) else
+            4 if straight(ranks) else
+            3 if (3,1,1) == counts else
+            2 if (2,2,1) == counts else
+            1 if (2,1,1,1) == counts else
+            0), ranks
+
+def group(items):
+    # items is the card ranks -> [6, 7, 8, 9, 10]
+    # Returns a list of [(count,x)...] highest count first, then highest x first."
+    # Example:
+    # If the input is [6,7,8,9,10], the output is [(1, 10), (1, 9), (1, 8), (1, 7), (1, 6)]
+    # If the input is [10, 10, 10, 7, 7], the output is [(3, 10), (2, 7)]
+    groups = [(items.count(x),x) for x in set(items)]
+    return sorted(groups, reverse=True)
+
+def unzip(pairs):
+    # Example:
+    # input:  [(1, 10), (1, 9), (1, 8), (1, 7), (1, 6)]
+    # output:  [(1, 1, 1, 1, 1), (10, 9, 8, 7, 6)]
+    # input: [(3, 10), (2, 7)]
+    # output: [(3, 2), (10, 7)]
+    return zip(*pairs)
 
 # Input is a hand of cards, that is a list
 # of pair rank and suit string, example: ['AC', '3D', '4S', 'KH']
@@ -130,7 +169,7 @@ def test():
     pair = ['AC', '3D', '4S', 'KH', 'KS']
     al = "AC 2D 4H 3D 5S".split() # Ace-Low Straight
      
-    assert poker([sf1, sf2, fk, fh]) == [sf1, sf2] 
+    assert poker([sf1, sf2, fk, al]) == [sf1, sf2] 
 
     assert straight(card_ranks(al)) == True 
     
@@ -155,7 +194,7 @@ def test():
     assert kind(1, fkranks) == 7
     
     print deal(3)
-    hand_percentages(10000)
+    #hand_percentages(10000)
 
     print 'Test Passed'
     return True
