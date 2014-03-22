@@ -1,3 +1,19 @@
+hand_names = ['High Card','Pair','2 pair',
+              '3 of a kind','Straight','Flush',
+              'Full House','4 of a kind','Straight Flush']
+
+# Function hand percentages
+# Prints probability for possible hands in poker game
+def hand_percentages(n):
+    "Sample n random hands and print a table of percentages for each type of hand"
+    counts = [0]*9
+    for i in range(n/10):
+        for hand in deal(10):
+            ranking = hand_rank(hand)[0]
+            counts[ranking] += 1
+    for i in reversed(range(9)):
+        print "%14s: %7.2f %%" % (hand_names[i], 100.*counts[i]/n)
+
 # Write a function, deal(numhands, n=5, deck), that 
 # deals numhands hands with n cards each.
 #
@@ -139,6 +155,7 @@ def test():
     assert kind(1, fkranks) == 7
     
     print deal(3)
+    hand_percentages(10000)
 
     print 'Test Passed'
     return True
